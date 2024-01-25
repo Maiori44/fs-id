@@ -17,6 +17,12 @@ pub trait GetID {
 	fn get_id(&self) -> io::Result<FileID>;
 }
 
+impl GetID for Path {
+	fn get_id(&self) -> io::Result<FileID> {
+		FileID::new(self)
+	}
+}
+
 #[cfg(test)]
 mod tests {
 	use crate::FileID;
