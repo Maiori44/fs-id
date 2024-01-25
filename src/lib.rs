@@ -4,16 +4,55 @@ use std::{fs::File, io, path::Path};
 #[cfg_attr(unix, path = "unix.rs")]
 mod sys;
 
+/// A file's identifier, can be compared with other `FileID`s to check if 2 variables point to the same file.
+/// 
+/// This struct is the combination of 2 identifiers:
+/// 
+/// * The id of the storage that contains the file.
+/// * The internal file id, unique only across files in the same storage.
+/// 
+/// Combining both allows to uniquely identify the file within the entire system.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct FileID (sys::FileIDImpl);
 
 impl FileID {
+	/// Given a path, obtain the identifier of a file, directory, etc.
+	/// 
+	/// # Platform-specific behavior
+	/// 
+	/// While on Unix obtaining the identifier of a directory is possible,
+	/// on Windows an error will be returned instead.
+	/// 
+	/// This function uses `fstat64` on Unix and `GetFileInformationByHandleEx` on Windows.  
+	/// This may change in the future.
+	/// 
+	/// # Errors
+	///
+	/// This function will error if it fails to open the file
+	/// or fails to obtain the metadata containing the identifier.
+	/// 
+	/// # Examples
+	/// 
+	/// ```rust,no_run
+	/// use fs_id::FileID;
+	/// 
+	/// fn main() -> std::io::Result<()> {
+	///     let file_id1 = FileID::new("/some/file/path.txt")?;
+	///     let file_id2 = FileID::new("/some/file/path.txt")?;
+	///     let file_id3 = FileID::new("/some/other/file.txt")?;
+	///     assert_eq!(file_id1, file_id2);
+	///     assert_ne!(file_id1, file_id3);
+	///     Ok(())
+	/// }
+	/// ```
 	pub fn new<P: AsRef<Path>>(path: P) -> io::Result<Self> {
 		File::open(path)?.get_id()
 	}
 }
 
+/// A trait to obtain the file identifier of an underlying object.
 pub trait GetID {
+	/// Obtains the file identifier, see [`FileID::new`] for more information.
 	fn get_id(&self) -> io::Result<FileID>;
 }
 
