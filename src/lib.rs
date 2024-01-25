@@ -34,6 +34,7 @@ mod tests {
 		let id3 = FileID::new("LICENSE")?;
 		assert_eq!(id1, id2);
 		assert_ne!(id1, id3);
+		println!("id1: {id1:?}\nid2: {id2:?}\nid3: {id3:?}");
 		Ok(())
 	}
 }
