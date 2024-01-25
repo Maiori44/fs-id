@@ -4,7 +4,7 @@ use std::{fs::File, io, path::Path};
 #[cfg_attr(unix, path = "unix.rs")]
 mod sys;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct FileID (sys::FileIDImpl);
 
 impl FileID {
