@@ -12,6 +12,12 @@ mod sys;
 /// * The internal file id, unique only across files in the same storage.
 /// 
 /// Combining both allows to uniquely identify the file within the entire system.
+/// 
+/// `FileID` can be used to identify everything that implements [`AsRawFd`] (or [`AsRawHandle`] on Windows),
+/// but it may function differently when identifying non-files.  
+/// For example, when used on stdout/stderr/stdin,
+/// the 3 will share the same identifier if they belong to the same process.
+/// (Only works on Unix, on Windows it will just error...)
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct FileID (sys::FileIDImpl);
 
@@ -160,7 +166,7 @@ impl_get_id!(Path, str, OsStr);
 /// fn main() -> std::io::Result<()> {
 ///     println!("{}", compare_ids("/some/file/path.txt", "/some/other/path.txt")?);
 ///     // works with more than just file paths....
-///     println!("{}", compare_ids(&std::io::stdout(), &std::io::stderr())?);
+///     println!("{}", compare_ids(&std::io::stdout(), &std::io::stdout())?);
 ///     Ok(())
 /// }
 /// ```
