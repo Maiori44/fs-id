@@ -143,6 +143,31 @@ macro_rules! impl_get_id {
 
 impl_get_id!(Path, str, OsStr);
 
+/// Compares 2 different file identifiers, and returns `Ok(true)` if the 2 identifiers point to the same file,
+/// returning `Ok(false)` otherwise.
+/// 
+/// See [`FileID::new`] for more information on the identifiers.
+/// 
+/// # Errors 
+/// 
+/// Returns [`io::Error`] when failing to obtain any of the 2 identifiers.
+/// 
+/// # Examples
+/// 
+/// ```rust,no_run
+/// use fs_id::compare_ids;
+/// 
+/// fn main() -> std::io::Result<()> {
+///     println!("{}", compare_ids("/some/file/path.txt", "/some/other/path.txt")?);
+///     // works with more than just file paths....
+///     println!("{}", compare_ids(&std::io::stdout(), &std::io::stderr())?);
+///     Ok(())
+/// }
+/// ```
+pub fn compare_ids<T1: GetID + ?Sized, T2: GetID + ?Sized>(id1: &T1, id2: &T2) -> io::Result<bool> {
+	Ok(id1.get_id()? == id2.get_id()?)
+}
+
 #[cfg(test)]
 mod tests {
 	use crate::FileID;
