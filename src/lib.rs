@@ -1,4 +1,4 @@
-use std::{fs::File, io, path::Path};
+use std::{ffi::OsStr, fs::File, io, path::Path};
 
 #[cfg_attr(windows, path = "windows.rs")]
 #[cfg_attr(unix, path = "unix.rs")]
@@ -16,7 +16,7 @@ mod sys;
 pub struct FileID (sys::FileIDImpl);
 
 impl FileID {
-	/// Given a path, obtain the identifier of a file, directory, etc.
+	/// Obtains the identifier of a file, directory, etc.
 	/// 
 	/// # Platform-specific behavior
 	/// 
@@ -33,6 +33,8 @@ impl FileID {
 	/// 
 	/// # Examples
 	/// 
+	/// Basic usage:
+	/// 
 	/// ```rust,no_run
 	/// use fs_id::FileID;
 	/// 
@@ -45,8 +47,23 @@ impl FileID {
 	///     Ok(())
 	/// }
 	/// ```
-	pub fn new<P: AsRef<Path>>(path: P) -> io::Result<Self> {
-		File::open(path)?.get_id()
+	/// 
+	/// Many different types can be used:
+	/// 
+	/// ```rust,no_run
+	/// use fs_id::FileID;
+	/// 
+	/// fn main() -> std::io::Result<()> {
+	///     let file_id1 = FileID::new("using_str.txt")?;
+	///     let file_id2 = FileID::new(std::ffi::OsStr::new("using_os_str.txt"))?;
+	///     let file_id3 = FileID::new(&std::fs::File::open("using_a_file.txt")?)?;
+	///     let file_id4 = FileID::new(&std::io::stdout())?;
+	///     // etc...
+	///     Ok(())
+	/// }
+	/// ```
+	pub fn new<T: GetID + ?Sized>(file: &T) -> io::Result<Self> {
+		file.get_id()
 	}
 
 	/// Returns the storage identifier from the file identifier.
@@ -105,11 +122,26 @@ pub trait GetID {
 	fn get_id(&self) -> io::Result<FileID>;
 }
 
-impl GetID for Path {
+impl GetID for FileID {
+	/// Returns a copy of itself wrapped inside `Ok`.
 	fn get_id(&self) -> io::Result<FileID> {
-		FileID::new(self)
+		Ok(self.to_owned())
 	}
 }
+
+macro_rules! impl_get_id {
+	($($type:ty),+) => {
+		$(
+			impl GetID for $type {
+				fn get_id(&self) -> io::Result<FileID> {
+					File::open(self)?.get_id()
+				}
+			}
+		)+
+	};
+}
+
+impl_get_id!(Path, str, OsStr);
 
 #[cfg(test)]
 mod tests {
