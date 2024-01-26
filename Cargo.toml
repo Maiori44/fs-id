@@ -1,7 +1,14 @@
 [package]
 name = "fs-id"
 version = "0.1.0"
+description = "Uniquely identify files within the system"
 edition = "2021"
+rust-version = "1.66"
+authors = ["Felicia.iso"]
+repository = "https://github.com/Maiori44/fs-id"
+license = "Zlib"
+keywords = ["fs", "file", "id"]
+categories = ["api-bindings", "filesystem"]
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2.152"
