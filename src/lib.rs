@@ -117,6 +117,7 @@ impl FileID {
 	/// }
 	/// ```
 	#[must_use]
+	#[allow(clippy::unnecessary_cast)]
 	pub const fn internal_file_id(&self) -> u128 {
 		self.0.1 as u128
 	}
