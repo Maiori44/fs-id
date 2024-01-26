@@ -48,6 +48,55 @@ impl FileID {
 	pub fn new<P: AsRef<Path>>(path: P) -> io::Result<Self> {
 		File::open(path)?.get_id()
 	}
+
+	/// Returns the storage identifier from the file identifier.
+	/// 
+	/// # Platform-specific behavior
+	/// 
+	/// This returns `st_dev` on Unix and `VolumeSerialNumber` on Windows.  
+	/// This may change in the future.
+	/// 
+	/// # Examples
+	/// 
+	/// ```rust,no_run
+	/// use fs_id::FileID;
+	/// 
+	/// fn main() -> std::io::Result<()> {
+	///     let file_id = FileID::new("/some/file/path.txt")?;
+	///     println!("{}", file_id.storage_id());
+	///     Ok(())
+	/// }
+	/// ```
+	#[must_use]
+	pub const fn storage_id(&self) -> u64 {
+		self.0.0
+	}
+
+	/// Returns the internal file identifier from the file identifier.  
+	/// Note that this value alone cannot uniquely identify the file within the system.
+	/// 
+	/// # Platform-specific behavior
+	/// 
+	/// This returns `st_ino` on Unix and `FileId` on Windows.  
+	/// This may change in the future.
+	/// 
+	/// On Unix only 64 of the returned 128 bits are effectively used.
+	/// 
+	/// # Examples
+	/// 
+	/// ```rust,no_run
+	/// use fs_id::FileID;
+	/// 
+	/// fn main() -> std::io::Result<()> {
+	///     let file_id = FileID::new("/some/file/path.txt")?;
+	///     println!("{}", file_id.internal_file_id());
+	///     Ok(())
+	/// }
+	/// ```
+	#[must_use]
+	pub const fn internal_file_id(&self) -> u128 {
+		self.0.1 as u128
+	}
 }
 
 /// A trait to obtain the file identifier of an underlying object.
