@@ -9,16 +9,11 @@ impl<T: AsRawFd> GetID for T {
 		let fd = self.as_raw_fd();
 		unsafe {
 			let mut filestat: Filestat = mem::zeroed();
-			match fd_filestat_get(fd, &mut filestat as *mut _ as i32) {
-				0 => Ok(FileID((filestat.dev, filestat.ino))),
-				_ => todo!(),
-			}
-			/*let mut buf = mem::zeroed();
-			if libc::fstat64(fd, &mut buf) == 0 {
-				Ok(FileID((buf.st_dev, buf.st_ino)))
+			if fd_filestat_get(fd, &mut filestat as *mut _ as i32) == 0 {
+				Ok(FileID((filestat.dev, filestat.ino)))
 			} else {
-				Err(io::Error::last_os_error())				
-			}*/
+				Err(io::Error::last_os_error())
+			}
 		}
 	}
 }
