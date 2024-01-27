@@ -2,7 +2,7 @@ use std::{ffi::OsStr, fs::File, io, path::Path};
 
 #[cfg_attr(windows, path = "windows.rs")]
 #[cfg_attr(unix, path = "unix.rs")]
-#[cfg_attr(target_family = "wasm", path = "wasm.rs")]
+#[cfg_attr(target_os = "wasi", path = "wasi.rs")]
 mod sys;
 
 /// A file's identifier, can be compared with other `FileID`s to check if 2 variables point to the same file.
