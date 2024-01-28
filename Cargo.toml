@@ -1,6 +1,6 @@
 [package]
 name = "fs-id"
-version = "0.1.0"
+version = "0.2.0"
 description = "Uniquely identify files within the system"
 edition = "2021"
 rust-version = "1.66"
