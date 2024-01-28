@@ -22,7 +22,7 @@ mod sys;
 /// 
 /// [`AsRawFd`]: os::fd::AsRawFd
 /// [`AsRawHandle`]: os::windows::io::AsRawHandle
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct FileID (sys::FileIDImpl);
 
 impl FileID {
