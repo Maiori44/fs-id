@@ -19,6 +19,9 @@ mod sys;
 /// For example, when used on stdout/stderr/stdin,
 /// the 3 will share the same identifier if they belong to the same process.
 /// (Only works on Unix, on Windows it will just error...)
+/// 
+/// [`AsRawFd`]: os::fd::AsRawFd
+/// [`AsRawHandle`]: os::windows::io::AsRawHandle
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct FileID (sys::FileIDImpl);
 
@@ -30,7 +33,11 @@ impl FileID {
 	/// While on Unix obtaining the identifier of a directory is possible,
 	/// on Windows an error will be returned instead.
 	/// 
-	/// This function uses `fstat64` on Unix and `GetFileInformationByHandleEx` on Windows.  
+	/// This function uses:
+	/// * `fstat64` on Unix
+	/// * `GetFileInformationByHandleEx` on Windows.
+	/// * `fd_filestat_get` on WASI.
+	/// 
 	/// This may change in the future.
 	/// 
 	/// # Errors
@@ -77,7 +84,11 @@ impl FileID {
 	/// 
 	/// # Platform-specific behavior
 	/// 
-	/// This returns `st_dev` on Unix and `VolumeSerialNumber` on Windows.  
+	/// This returns:
+	/// * `st_dev` on Unix.
+	/// * `VolumeSerialNumber` on Windows.
+	/// * `dev` on WASI.
+	/// 
 	/// This may change in the future.
 	/// 
 	/// # Examples
@@ -101,10 +112,14 @@ impl FileID {
 	/// 
 	/// # Platform-specific behavior
 	/// 
-	/// This returns `st_ino` on Unix and `FileId` on Windows.  
+	/// This returns:
+	/// * `st_ino` on Unix.
+	/// * `FileId` on Windows.
+	/// * `ino` on WASI.
+	/// 
 	/// This may change in the future.
 	/// 
-	/// On Unix only 64 of the returned 128 bits are effectively used.
+	/// On Unix and WASI only 64 of the returned 128 bits are effectively used.
 	/// 
 	/// # Examples
 	/// 
